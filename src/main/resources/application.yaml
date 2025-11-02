@@ -1,11 +1,11 @@
 server:
-  port: ${SERVER_PORT:8081}
+  port: ${AUTH_SERVICE_PORT:8081}
 
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/auth_db}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:17052007}
+    url: jdbc:postgresql://${AUTH_DB_HOST}:${AUTH_DB_PORT}/${AUTH_DB_NAME}
+    username: ${AUTH_DB_USERNAME}
+    password: ${AUTH_DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
@@ -19,18 +19,18 @@ spring:
     change-log: classpath:/db/changelog/changelog-master.xml
 
 jwt:
-  secret: ${JWT_SECRET:MySuperSecretKeyForJWTMySuperSecretKeyForJWT}
-  expiration: ${JWT_EXPIRATION:3600000}
-  header: ${JWT_HEADER:Authorization}
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
+  header: ${JWT_HEADER}
   token:
-    prefix: ${JWT_TOKEN_PREFIX:Bearer}
+    prefix: ${JWT_TOKEN_PREFIX}
   role:
-    prefix: ${JWT_ROLE_PREFIX:ROLE_}
+    prefix: ${JWT_ROLE_PREFIX}
 
 password:
-  strength: ${PASSWORD_STRENGTH:16}
+  strength: ${PASSWORD_STRENGTH}
   hash:
-    algorithm: ${PASSWORD_HASH_ALGORITHM:SHA-256}
+    algorithm: ${PASSWORD_HASH_ALGORITHM}
   salt:
-    algorithm: ${PASSWORD_SALT_ALGORITHM:SHA1PRNG}
-    length: ${PASSWORD_SALT_LENGTH:16}
+    algorithm: ${PASSWORD_SALT_ALGORITHM}
+    length: ${PASSWORD_SALT_LENGTH}
