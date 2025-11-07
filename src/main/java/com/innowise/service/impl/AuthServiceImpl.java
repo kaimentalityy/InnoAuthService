@@ -1,10 +1,12 @@
 package com.innowise.service.impl;
 
+import com.innowise.client.UserClient;
 import com.innowise.exception.AccessDeniedCustomException;
 import com.innowise.exception.EntityAlreadyExistsException;
 import com.innowise.exception.InvalidTokenException;
 import com.innowise.model.dto.AuthResponseDTO;
 import com.innowise.model.dto.AuthDto;
+import com.innowise.model.dto.UserRegisterDto;
 import com.innowise.model.entity.AuthUser;
 import com.innowise.model.entity.RefreshToken;
 import com.innowise.model.entity.Role;
@@ -15,6 +17,7 @@ import com.innowise.service.RefreshTokenService;
 import com.innowise.util.ExceptionMessage;
 import com.innowise.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,6 +35,7 @@ import java.util.stream.Collectors;
  * Handles user registration, login, token refresh, and JWT validation.
  */
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
@@ -41,6 +45,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
+    private final UserClient userClient;
 
     /**
      * Register: transactional — user save + token creation must be atomic.
@@ -49,23 +54,40 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public AuthResponseDTO register(AuthDto request) {
         if (userRepository.existsByUsername(request.username())) {
-            throw new EntityAlreadyExistsException(
-                    ExceptionMessage.ENTITY_ALREADY_EXISTS.get()
-            );
+            throw new EntityAlreadyExistsException("User already exists");
         }
 
         Role userRole = roleRepo.findByRoleName("ROLE_USER")
-                .orElseThrow(() -> new AccessDeniedCustomException(ExceptionMessage.ACCESS_DENIED.get()));
+                .orElseThrow(AccessDeniedCustomException::new);
 
-        AuthUser user = new AuthUser();
-        user.setUsername(request.username());
-        user.setPassword(passwordEncoder.encode(request.password()));
-        user.getRoles().add(userRole);
+        AuthUser authUser = new AuthUser();
+        authUser.setUsername(request.username());
+        authUser.setPassword(passwordEncoder.encode(request.password()));
+        authUser.getRoles().add(userRole);
 
-        userRepository.save(user);
+        try {
+            UserRegisterDto userRequest = new UserRegisterDto(
+                    request.name(),
+                    request.surname(),
+                    request.birthDate(),
+                    request.email(),
+                    request.username()
+            );
+            userClient.createUserInUserService(userRequest);
 
-        return generateAuthResponse(user);
+            userRepository.save(authUser);
+
+            return generateAuthResponse(authUser);
+        } catch (Exception e) {
+            try {
+                userClient.deleteUserInUserService(request.username());
+            } catch (Exception rollbackError) {
+                log.error("Failed to rollback user in UserService: {}", rollbackError.getMessage());
+            }
+            throw new RuntimeException("Registration failed, transaction rolled back", e);
+        }
     }
+
 
     /**
      * Login: transactional so we can safely extract roles from managed entity.

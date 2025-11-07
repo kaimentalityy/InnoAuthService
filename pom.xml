@@ -8,7 +8,7 @@
     <artifactId>inno-user-service</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
-    <name>Inno User Service</name>
+    <name>Inno Auth Service</name>
     <description>Spring Boot Auth Service with JWT Authentication</description>
 
     <parent>
@@ -26,6 +26,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
         <dependency>
