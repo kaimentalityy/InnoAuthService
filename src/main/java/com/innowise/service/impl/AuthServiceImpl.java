@@ -57,7 +57,11 @@ public class AuthServiceImpl implements AuthService {
             throw new EntityAlreadyExistsException("User already exists");
         }
 
-        Role userRole = roleRepo.findByRoleName("ROLE_USER")
+        String roleToAssign = (request.role() != null && !request.role().isBlank())
+                ? request.role()
+                : "ROLE_USER";
+
+        Role userRole = roleRepo.findByRoleName(roleToAssign)
                 .orElseThrow(AccessDeniedCustomException::new);
 
         AuthUser authUser = new AuthUser();
@@ -70,9 +74,7 @@ public class AuthServiceImpl implements AuthService {
                     request.name(),
                     request.surname(),
                     request.birthDate(),
-                    request.email(),
-                    request.username()
-            );
+                    request.email());
             userClient.createUserInUserService(userRequest);
 
             userRepository.save(authUser);
@@ -80,14 +82,13 @@ public class AuthServiceImpl implements AuthService {
             return generateAuthResponse(authUser);
         } catch (Exception e) {
             try {
-                userClient.deleteUserInUserService(request.username());
+                userClient.deleteUserInUserService(request.email());
             } catch (Exception rollbackError) {
                 log.error("Failed to rollback user in UserService: {}", rollbackError.getMessage());
             }
             throw new RuntimeException("Registration failed, transaction rolled back", e);
         }
     }
-
 
     /**
      * Login: transactional so we can safely extract roles from managed entity.
@@ -96,8 +97,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public AuthResponseDTO login(AuthDto request) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.username(), request.password())
-        );
+                new UsernamePasswordAuthenticationToken(request.username(), request.password()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         AuthUser user = (AuthUser) authentication.getPrincipal();
@@ -106,7 +106,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
-     * Refresh: read-only transaction and load user with roles explicitly to avoid lazy/detached access.
+     * Refresh: read-only transaction and load user with roles explicitly to avoid
+     * lazy/detached access.
      */
     @Override
     @Transactional
@@ -131,10 +132,8 @@ public class AuthServiceImpl implements AuthService {
 
         return Map.of(
                 "accessToken", newAccessToken,
-                "refreshToken", newRefreshToken.getToken()
-        );
+                "refreshToken", newRefreshToken.getToken());
     }
-
 
     @Override
     public boolean validateToken(String token) {
@@ -143,7 +142,8 @@ public class AuthServiceImpl implements AuthService {
 
     /**
      * Generates access and refresh tokens for the given user.
-     * Called inside @Transactional methods, so user entity is managed and roles are available.
+     * Called inside @Transactional methods, so user entity is managed and roles are
+     * available.
      *
      * @param user the user (managed entity)
      * @return auth response with tokens

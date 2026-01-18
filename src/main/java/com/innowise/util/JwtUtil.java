@@ -23,13 +23,14 @@ public class JwtUtil {
     private final long expirationMs;
 
     /**
-     * Constructor initializes signing key and expiration time from application properties.
+     * Constructor initializes signing key and expiration time from application
+     * properties.
      *
      * @param secret       JWT secret key
      * @param expirationMs Expiration time in milliseconds
      */
     public JwtUtil(@Value("${jwt.secret}") String secret,
-                   @Value("${jwt.expiration}") long expirationMs) {
+            @Value("${jwt.expiration}") long expirationMs) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
         this.expirationMs = expirationMs;
     }
@@ -38,13 +39,14 @@ public class JwtUtil {
      * Generates a JWT token for the given user.
      *
      * @param username for User username
-     * @param roles for User Roles
+     * @param roles    for User Roles
      * @return Signed JWT token
      */
     public String generateToken(String username, Set<String> roles) {
         return Jwts.builder()
                 .setSubject(username)
                 .claim("roles", roles)
+                .claim("authorities", roles)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key, SignatureAlgorithm.HS256)

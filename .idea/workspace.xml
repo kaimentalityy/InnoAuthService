@@ -5,19 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4cc18b31-981c-421d-a7c9-f8d6f2afde10" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/innowise/client/UserClient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/innowise/config/WebClientConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/innowise/model/dto/UserRegisterDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.env.docker" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.env.local" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/innowise/config/MetricsConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/innowise/config/OpenApiConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/innowise/health/DatabaseHealthIndicator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/innowise/health/JwtHealthIndicator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/logback-spring.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/com/innowise/monitoring/ActuatorEndpointsTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/com/innowise/monitoring/DatabaseHealthIndicatorTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/com/innowise/monitoring/JwtHealthIndicatorTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/innowise/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/innowise/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/innowise/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/innowise/controller/AuthController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/innowise/model/dto/AuthDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/innowise/model/dto/AuthDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/innowise/model/dto/AuthResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/innowise/model/dto/AuthResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/innowise/model/dto/ErrorDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/innowise/model/dto/ErrorDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/innowise/model/dto/UserRegisterDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/innowise/model/dto/UserRegisterDto.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/innowise/service/impl/AuthServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/innowise/service/impl/AuthServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/innowise/util/JwtUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/innowise/util/JwtUtil.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -49,31 +55,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "Spring Boot.SpringSecurityApp.executor": "Run",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/kai/IdeaProjects/InnoProjects/InnoAuthService",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;Spring Boot.SpringSecurityApp.executor&quot;: &quot;Debug&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;tasks/AUTH-1&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/kai/IdeaProjects/InnoProjects/InnoAuthService&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="InnoAuthService" />
@@ -92,8 +102,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.26830.84" />
-        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-IU-252.26830.84" />
+        <option value="bundled-jdk-30f59d01ecdd-cffe25b9f5b3-intellij.indexing.shared.core-IU-253.28294.334" />
+        <option value="bundled-js-predefined-d6986cc7102b-c7e53b3be11b-JavaScript-IU-253.28294.334" />
       </set>
     </attachedChunks>
   </component>
@@ -106,6 +116,39 @@
       <updated>1762086171068</updated>
       <workItem from="1762086172376" duration="9485000" />
       <workItem from="1762106988004" duration="6289000" />
+      <workItem from="1762805712035" duration="14559000" />
+      <workItem from="1762953846324" duration="2266000" />
+      <workItem from="1762962911559" duration="728000" />
+      <workItem from="1762984228121" duration="599000" />
+      <workItem from="1763035991162" duration="1198000" />
+      <workItem from="1763051128074" duration="1198000" />
+      <workItem from="1763217763654" duration="599000" />
+      <workItem from="1763233196011" duration="606000" />
+      <workItem from="1763243069260" duration="4019000" />
+      <workItem from="1763334469012" duration="599000" />
+      <workItem from="1763370802129" duration="1241000" />
+      <workItem from="1763393370935" duration="6329000" />
+      <workItem from="1763483075476" duration="5000" />
+      <workItem from="1763921448582" duration="215000" />
+      <workItem from="1764512748664" duration="601000" />
+      <workItem from="1764541057093" duration="2062000" />
+      <workItem from="1764606525300" duration="6198000" />
+      <workItem from="1766141613429" duration="723000" />
+      <workItem from="1766142508878" duration="1512000" />
+      <workItem from="1766230412746" duration="3793000" />
+      <workItem from="1766275107932" duration="91000" />
+      <workItem from="1766318878901" duration="413000" />
+      <workItem from="1766330861843" duration="870000" />
+      <workItem from="1766331845633" duration="416000" />
+      <workItem from="1766332286518" duration="5000" />
+      <workItem from="1766388536932" duration="260000" />
+      <workItem from="1766394374491" duration="18000" />
+      <workItem from="1766917458730" duration="734000" />
+      <workItem from="1768348977683" duration="92000" />
+      <workItem from="1768482132939" duration="406000" />
+      <workItem from="1768485919164" duration="178000" />
+      <workItem from="1768486585536" duration="2678000" />
+      <workItem from="1768752608035" duration="681000" />
     </task>
     <servers />
   </component>
