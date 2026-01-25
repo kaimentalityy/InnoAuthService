@@ -74,12 +74,18 @@ management:
         '[http.server.requests]': true
     tags:
       application: ${spring.application.name}
+      service: auth-service
       environment: ${ENVIRONMENT:dev}
+  observations:
+    key-values:
+      application: ${spring.application.name}
+      service: auth-service
   prometheus:
     metrics:
       export:
         enabled: true
   tracing:
+    enabled: true
     sampling:
       probability: 1.0
   otlp:

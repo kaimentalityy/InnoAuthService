@@ -13,6 +13,9 @@ import lombok.Data;
 @Schema(description = "Authentication response containing JWT tokens and user info")
 public class AuthResponseDTO {
 
+    @Schema(description = "Authenticated user's ID", example = "1")
+    private Long id;
+
     @Schema(description = "JWT access token", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
     private String token;
 

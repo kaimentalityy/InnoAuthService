@@ -2,6 +2,7 @@ package com.innowise.controller;
 
 import com.innowise.model.dto.AuthResponseDTO;
 import com.innowise.model.dto.AuthDto;
+import com.innowise.model.dto.LoginDto;
 import com.innowise.model.dto.ErrorDto;
 import com.innowise.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -70,7 +71,7 @@ public class AuthController {
                         @ApiResponse(responseCode = "400", description = "Invalid credentials", content = @Content(schema = @Schema(implementation = ErrorDto.class))),
                         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDto.class)))
         })
-        public ResponseEntity<AuthResponseDTO> login(@RequestBody @Valid AuthDto request) {
+        public ResponseEntity<AuthResponseDTO> login(@RequestBody @Valid LoginDto request) {
                 AuthResponseDTO resp = authService.login(request);
                 return ResponseEntity.ok(resp);
         }

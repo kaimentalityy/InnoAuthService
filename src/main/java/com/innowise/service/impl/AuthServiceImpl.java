@@ -6,6 +6,7 @@ import com.innowise.exception.EntityAlreadyExistsException;
 import com.innowise.exception.InvalidTokenException;
 import com.innowise.model.dto.AuthResponseDTO;
 import com.innowise.model.dto.AuthDto;
+import com.innowise.model.dto.LoginDto;
 import com.innowise.model.dto.UserRegisterDto;
 import com.innowise.model.entity.AuthUser;
 import com.innowise.model.entity.RefreshToken;
@@ -16,6 +17,8 @@ import com.innowise.service.AuthService;
 import com.innowise.service.RefreshTokenService;
 import com.innowise.util.ExceptionMessage;
 import com.innowise.util.JwtUtil;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -47,47 +50,59 @@ public class AuthServiceImpl implements AuthService {
     private final RefreshTokenService refreshTokenService;
     private final UserClient userClient;
 
+    private final Counter authenticationAttemptsCounter;
+    private final Counter authenticationSuccessCounter;
+    private final Counter authenticationFailureCounter;
+    private final Timer authenticationTimer;
+
     /**
      * Register: transactional — user save + token creation must be atomic.
      */
     @Override
     @Transactional
     public AuthResponseDTO register(AuthDto request) {
-        if (userRepository.existsByUsername(request.username())) {
-            throw new EntityAlreadyExistsException("User already exists");
-        }
-
-        String roleToAssign = (request.role() != null && !request.role().isBlank())
-                ? request.role()
-                : "ROLE_USER";
-
-        Role userRole = roleRepo.findByRoleName(roleToAssign)
-                .orElseThrow(AccessDeniedCustomException::new);
-
-        AuthUser authUser = new AuthUser();
-        authUser.setUsername(request.username());
-        authUser.setPassword(passwordEncoder.encode(request.password()));
-        authUser.getRoles().add(userRole);
-
-        try {
-            UserRegisterDto userRequest = new UserRegisterDto(
-                    request.name(),
-                    request.surname(),
-                    request.birthDate(),
-                    request.email());
-            userClient.createUserInUserService(userRequest);
-
-            userRepository.save(authUser);
-
-            return generateAuthResponse(authUser);
-        } catch (Exception e) {
-            try {
-                userClient.deleteUserInUserService(request.email());
-            } catch (Exception rollbackError) {
-                log.error("Failed to rollback user in UserService: {}", rollbackError.getMessage());
+        authenticationAttemptsCounter.increment();
+        return authenticationTimer.record(() -> {
+            if (userRepository.existsByUsername(request.username())) {
+                authenticationFailureCounter.increment();
+                throw new EntityAlreadyExistsException("User already exists");
             }
-            throw new RuntimeException("Registration failed, transaction rolled back", e);
-        }
+
+            String roleToAssign = (request.role() != null && !request.role().isBlank())
+                    ? request.role()
+                    : "ROLE_USER";
+
+            Role userRole = roleRepo.findByRoleName(roleToAssign)
+                    .orElseThrow(AccessDeniedCustomException::new);
+
+            AuthUser authUser = new AuthUser();
+            authUser.setUsername(request.username());
+            authUser.setPassword(passwordEncoder.encode(request.password()));
+            authUser.getRoles().add(userRole);
+
+            try {
+                UserRegisterDto userRequest = new UserRegisterDto(
+                        request.name(),
+                        request.surname(),
+                        request.birthDate(),
+                        request.email());
+                userClient.createUserInUserService(userRequest);
+
+                userRepository.save(authUser);
+
+                AuthResponseDTO response = generateAuthResponse(authUser);
+                authenticationSuccessCounter.increment();
+                return response;
+            } catch (Exception e) {
+                authenticationFailureCounter.increment();
+                try {
+                    userClient.deleteUserInUserService(request.email());
+                } catch (Exception rollbackError) {
+                    log.error("Failed to rollback user in UserService: {}", rollbackError.getMessage());
+                }
+                throw new RuntimeException("Registration failed, transaction rolled back", e);
+            }
+        });
     }
 
     /**
@@ -95,14 +110,24 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     @Transactional
-    public AuthResponseDTO login(AuthDto request) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.username(), request.password()));
+    public AuthResponseDTO login(LoginDto request) {
+        authenticationAttemptsCounter.increment();
+        return authenticationTimer.record(() -> {
+            try {
+                Authentication authentication = authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(request.username(), request.password()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        AuthUser user = (AuthUser) authentication.getPrincipal();
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                AuthUser user = (AuthUser) authentication.getPrincipal();
 
-        return generateAuthResponse(user);
+                AuthResponseDTO response = generateAuthResponse(user);
+                authenticationSuccessCounter.increment();
+                return response;
+            } catch (Exception e) {
+                authenticationFailureCounter.increment();
+                throw e;
+            }
+        });
     }
 
     /**
@@ -156,6 +181,6 @@ public class AuthServiceImpl implements AuthService {
         String token = jwtUtil.generateToken(user.getUsername(), roleNames);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
 
-        return new AuthResponseDTO(token, user.getUsername(), refreshToken.getToken());
+        return new AuthResponseDTO(user.getId(), token, user.getUsername(), refreshToken.getToken());
     }
 }
