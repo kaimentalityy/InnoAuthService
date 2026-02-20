@@ -16,6 +16,12 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8088/realms/innowise-realm}
+
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/changelog-master.xml
@@ -31,24 +37,6 @@ springdoc:
   show-actuator: true
   cache:
     disabled: true
-
-jwt:
-  secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION:3600000}
-  header: ${JWT_HEADER:Authorization}
-  token:
-    prefix: ${JWT_TOKEN_PREFIX:Bearer }
-  role:
-    prefix: ${JWT_ROLE_PREFIX:ROLE_}
-
-password:
-  strength: ${PASSWORD_STRENGTH}
-  hash:
-    algorithm: ${PASSWORD_HASH_ALGORITHM}
-  salt:
-    algorithm: ${PASSWORD_SALT_ALGORITHM}
-    length: ${PASSWORD_SALT_LENGTH}
-
 
 management:
   endpoints:
@@ -91,15 +79,22 @@ management:
   otlp:
     tracing:
       endpoint: ${TEMPO_ENDPOINT:http://tempo:4318/v1/traces}
-  loki:
-    url: ${LOKI_URL:http://loki:3100}
 
+keycloak:
+  server-url: ${KEYCLOAK_URL:http://localhost:8088}
+  realm: ${KEYCLOAK_REALM:innowise-realm}
+  resource: ${KEYCLOAK_RESOURCE:innowise-client}
+  admin:
+    username: ${KEYCLOAK_ADMIN_USER:admin}
+    password: ${KEYCLOAK_ADMIN_PASSWORD:admin}
+    client-id: admin-cli
+  client-id: ${KEYCLOAK_CLIENT_ID:innowise-client}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET:}
 
 info:
   app:
     name: InnoAuthService
     description: Spring Boot Auth Service with JWT Authentication
     version: 1.0.0
-    encoding: UTF-8
     java:
       version: 21

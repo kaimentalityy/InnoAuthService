@@ -1,5 +1,6 @@
 package com.innowise.client;
 
+import com.innowise.model.dto.UserDto;
 import com.innowise.model.dto.UserRegisterDto;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
@@ -21,10 +22,8 @@ public class UserClient {
                     .uri("/api/users/register")
                     .bodyValue(request)
                     .retrieve()
-                    .onStatus(HttpStatusCode::isError, response ->
-                            response.bodyToMono(String.class)
-                                    .map(msg -> new RuntimeException("UserService error: " + msg))
-                    )
+                    .onStatus(HttpStatusCode::isError, response -> response.bodyToMono(String.class)
+                            .map(msg -> new RuntimeException("UserService error: " + msg)))
                     .toBodilessEntity()
                     .block();
         } catch (WebClientResponseException e) {
@@ -43,6 +42,18 @@ public class UserClient {
                     .block();
         } catch (WebClientResponseException e) {
             throw new RuntimeException("UserService rollback failed: " + e.getResponseBodyAsString(), e);
+        }
+    }
+
+    public UserDto fetchUserProfile(String email) {
+        try {
+            return userServiceClient.get()
+                    .uri("/api/users/internal/by-email/{email}", email)
+                    .retrieve()
+                    .bodyToMono(com.innowise.model.dto.UserDto.class)
+                    .block();
+        } catch (Exception e) {
+            return null;
         }
     }
 
