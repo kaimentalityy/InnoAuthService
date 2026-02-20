@@ -2,6 +2,7 @@ package com.innowise.service;
 
 import com.innowise.model.dto.AuthResponseDTO;
 import com.innowise.model.dto.AuthDto;
+import com.innowise.model.dto.LoginDto;
 
 import java.util.Map;
 
@@ -24,7 +25,7 @@ public interface AuthService {
      * @param request login data
      * @return auth response with tokens
      */
-    AuthResponseDTO login(AuthDto request);
+    AuthResponseDTO login(LoginDto request);
 
     /**
      * Refreshes the access token.

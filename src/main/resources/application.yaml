@@ -2,10 +2,12 @@ server:
   port: ${AUTH_SERVICE_PORT:8081}
 
 spring:
+  application:
+    name: inno-auth-service
   datasource:
-    url: jdbc:postgresql://${AUTH_DB_HOST}:${AUTH_DB_PORT}/${AUTH_DB_NAME}
-    username: ${AUTH_DB_USERNAME}
-    password: ${AUTH_DB_PASSWORD}
+    url: jdbc:postgresql://${AUTH_DB_HOST:postgres-auth}:${AUTH_DB_PORT:5432}/${AUTH_DB_NAME:auth_db}
+    username: ${AUTH_DB_USERNAME:postgres}
+    password: ${AUTH_DB_PASSWORD:17052007}
   jpa:
     hibernate:
       ddl-auto: update
@@ -18,14 +20,26 @@ spring:
     enabled: true
     change-log: classpath:/db/changelog/changelog-master.xml
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    doc-expansion: none
+  show-actuator: true
+  cache:
+    disabled: true
+
 jwt:
   secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION}
-  header: ${JWT_HEADER}
+  expiration: ${JWT_EXPIRATION:3600000}
+  header: ${JWT_HEADER:Authorization}
   token:
-    prefix: ${JWT_TOKEN_PREFIX}
+    prefix: ${JWT_TOKEN_PREFIX:Bearer }
   role:
-    prefix: ${JWT_ROLE_PREFIX}
+    prefix: ${JWT_ROLE_PREFIX:ROLE_}
 
 password:
   strength: ${PASSWORD_STRENGTH}
@@ -34,3 +48,58 @@ password:
   salt:
     algorithm: ${PASSWORD_SALT_ALGORITHM}
     length: ${PASSWORD_SALT_LENGTH}
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,env,loggers
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  info:
+    env:
+      enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        '[http.server.requests]': true
+    tags:
+      application: ${spring.application.name}
+      service: auth-service
+      environment: ${ENVIRONMENT:dev}
+  observations:
+    key-values:
+      application: ${spring.application.name}
+      service: auth-service
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: ${TEMPO_ENDPOINT:http://tempo:4318/v1/traces}
+  loki:
+    url: ${LOKI_URL:http://loki:3100}
+
+
+info:
+  app:
+    name: InnoAuthService
+    description: Spring Boot Auth Service with JWT Authentication
+    version: 1.0.0
+    encoding: UTF-8
+    java:
+      version: 21

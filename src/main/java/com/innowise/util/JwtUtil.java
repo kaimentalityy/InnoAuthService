@@ -4,6 +4,8 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Timer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -21,34 +23,52 @@ public class JwtUtil {
 
     private final Key key;
     private final long expirationMs;
+    private final Counter tokensGeneratedCounter;
+    private final Counter tokensValidatedCounter;
+    private final Timer tokenGenerationTimer;
+    private final Timer tokenValidationTimer;
 
     /**
-     * Constructor initializes signing key and expiration time from application properties.
+     * Constructor initializes signing key and expiration time from application
+     * properties.
      *
      * @param secret       JWT secret key
      * @param expirationMs Expiration time in milliseconds
      */
     public JwtUtil(@Value("${jwt.secret}") String secret,
-                   @Value("${jwt.expiration}") long expirationMs) {
+            @Value("${jwt.expiration}") long expirationMs,
+            Counter tokensGeneratedCounter,
+            Counter tokensValidatedCounter,
+            Timer tokenGenerationTimer,
+            Timer tokenValidationTimer) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
         this.expirationMs = expirationMs;
+        this.tokensGeneratedCounter = tokensGeneratedCounter;
+        this.tokensValidatedCounter = tokensValidatedCounter;
+        this.tokenGenerationTimer = tokenGenerationTimer;
+        this.tokenValidationTimer = tokenValidationTimer;
     }
 
     /**
      * Generates a JWT token for the given user.
      *
      * @param username for User username
-     * @param roles for User Roles
+     * @param roles    for User Roles
      * @return Signed JWT token
      */
     public String generateToken(String username, Set<String> roles) {
-        return Jwts.builder()
-                .setSubject(username)
-                .claim("roles", roles)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
+        return tokenGenerationTimer.record(() -> {
+            String token = Jwts.builder()
+                    .setSubject(username)
+                    .claim("roles", roles)
+                    .claim("authorities", roles)
+                    .setIssuedAt(new Date())
+                    .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+                    .signWith(key, SignatureAlgorithm.HS256)
+                    .compact();
+            tokensGeneratedCounter.increment();
+            return token;
+        });
     }
 
     /**
@@ -85,11 +105,14 @@ public class JwtUtil {
      * @return true if token is valid, false otherwise
      */
     public boolean validateToken(String token) {
-        try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
-        } catch (JwtException e) {
-            return false;
-        }
+        return tokenValidationTimer.record(() -> {
+            try {
+                Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+                tokensValidatedCounter.increment();
+                return true;
+            } catch (JwtException e) {
+                return false;
+            }
+        });
     }
 }
