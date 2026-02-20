@@ -10,4 +10,6 @@
     <include file="db/changelog/003-create-roles.xml"/>
     <include file="db/changelog/004-create-user-roles.xml"/>
     <include file="db/changelog/005-insert-roles.xml"/>
+    <include file="db/changelog/006-add-email-to-auth-users.xml"/>
+    <include file="db/changelog/007-add-keycloak-id-and-update-password.xml"/>
 </databaseChangeLog>
